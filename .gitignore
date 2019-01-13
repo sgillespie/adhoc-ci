@@ -1,1 +1,7 @@
 .vagrant
+
+# Cabal generated
+.ghc.*
+cabal.project.local
+dist
+dist-newstyle
