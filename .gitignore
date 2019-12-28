@@ -1,7 +1,11 @@
 .vagrant
 
 # Cabal generated
+.cabal-sandbox
 .ghc.*
 cabal.project.local
+cabal.sandbox.config
 dist
 dist-newstyle
+
+*~
