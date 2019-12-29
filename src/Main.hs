@@ -1,38 +1,22 @@
 module Main where
 
 import Data.Semigroup ((<>))
+import Development.AdhocCi
 import Options.Applicative
-import Options.Applicative.Help.Pretty (text)
-
-data CmdOpts = CmdOpts {
-  configFile :: FilePath,
-  rootPath   :: FilePath,
-  pipe       :: [String] }
-
-defaultOpts :: CmdOpts
-defaultOpts = CmdOpts {
-  configFile = "adhoc-ci.yml",
-  rootPath = ".",
-  pipe = [] }
 
 main :: IO ()
 main = customExecParser prefs' opts >>= run
   where prefs' = prefs (columns 100)
-        opts = info (dummyOpt <**> cmdParser <**> helper <**> dummyOpt)
+        opts = info (cmdParser <**> helper)
                     (fullDesc <> progDesc')
         progDesc' = progDesc "Execute a continuous integration pipeline"
-        dummyOpt = abortOption ShowHelpText $ mconcat
-          [ long "help"
-          , short 'h'
-          , help "Show this help text"
-          , style (const (text "asdf")) ]
 
-run :: CmdOpts -> IO ()
-run _ = putStrLn "Hello, Haskell!"
+run :: PipelineOpts -> IO ()
+run = runStages
 
-cmdParser :: Parser CmdOpts
+cmdParser :: Parser PipelineOpts
 cmdParser
-  = CmdOpts <$> strOption configOpt
+  = PipelineOpts <$> strOption configOpt
     <*> strOption rootOpt
     <*> many (strArgument pipeArg)
   where configOpt = long "configFile"
@@ -45,9 +29,9 @@ cmdParser
         rootOpt   = long "root"
                     <> short 'd'
                     <> metavar "DIR"
-                    <> value (rootPath defaultOpts)
+                    <> value (rootPath mkPipelineOpts)
                     <> help "root directory of the project"
                     <> showDefault
                     <> hidden
-        pipeArg   = metavar "PIPE..."
-                  <> help "pipe(s) to execute"
+        pipeArg   = metavar "STAGE..."
+                  <> help "stage(s) to execute"

@@ -1,19 +1,18 @@
-module Development.AdhocCi where
+module Development.AdhocCi (
+  PipelineOpts (..),
+  mkPipelineOpts,
+  runStages,
+  module Development.AdhocCi.Config
+  ) where
 
--- pipeline:
---   stage1: ["cabal configure", "cabal build"]
---   stage2: ["cabal test"]
---   stage3: ["./deploy-app.sh"]
-
-data Pipeline = Pipeline [Stage]
-  deriving (Eq, Show)
-data Stage = Stage String [String]
-  deriving (Eq, Show)
+import qualified Data.ByteString as B
+import Data.Yaml (encode, prettyPrintParseException)
+import Development.AdhocCi.Config
 
 data PipelineOpts = PipelineOpts
   { configFile :: FilePath,
     rootPath   :: FilePath,
-    stage      :: String
+    stage      :: [String]
   } deriving (Eq, Show)
 
 mkPipelineOpts :: PipelineOpts
@@ -23,5 +22,10 @@ mkPipelineOpts = PipelineOpts
     stage      = []
   }
 
-build :: PipelineOpts -> IO ()
-build opts = undefined
+runStages :: PipelineOpts -> IO ()
+runStages opts = do
+  result <- parseConfigFile configPath
+  case result of
+    Left err      -> putStr (prettyPrintParseException err)
+    Right result' -> B.putStr (encode result')
+  where configPath = rootPath opts ++ "/" ++ configFile opts

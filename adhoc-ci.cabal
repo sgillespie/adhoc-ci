@@ -14,20 +14,33 @@ category:            Development
 extra-source-files:  CHANGELOG.md, README.md
 
 library
-  -- exposed-modules:
+  exposed-modules:     Development.AdhocCi,
+                       Development.AdhocCi.Commands,
+                       Development.AdhocCi.Config
   -- other-modules:
   -- other-extensions:
   build-depends:       base ^>= 4.12.0.0,
-                       optparse-applicative
+                       bytestring,
+                       optparse-applicative,
+                       yaml,
+                       unordered-containers,
+                       text
   hs-source-dirs:      src
   default-language:    Haskell2010
 
 executable adhoc-ci
   main-is:             Main.hs
-  -- other-modules:
+  other-modules:       Development.AdhocCi,
+                       Development.AdhocCi.Commands,
+                       Development.AdhocCi.Config
   -- other-extensions:
   build-depends:       base ^>= 4.12.0.0,
+                       adhoc-ci,
+                       bytestring,
                        optparse-applicative,
+                       unordered-containers,
+                       yaml,
+                       text
   hs-source-dirs:      src
   default-language:    Haskell2010
 
@@ -38,15 +51,21 @@ test-suite hlint
   hs-source-dirs:      test
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base ^>= 4.12.0.0,
+                       hlint,
                        hlint-test
   default-language:    Haskell2010
 
 test-suite spec
   type:                exitcode-stdio-1.0
-  main-is:             Spec.hs
+  main-is:             HSpec.hs
+  other-modules:       Development.AdhocCi.CommandsSpec,
+                       Development.AdhocCi.ConfigSpec
   hs-source-dirs:      test
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base ^>= 4.12.0.0,
+                       adhoc-ci,
+                       directory,
                        hspec,
-                       hspec-discover
+                       hspec-discover,
+                       yaml
   default-language:    Haskell2010
