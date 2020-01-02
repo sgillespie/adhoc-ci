@@ -22,6 +22,7 @@ library
   build-depends:       base ^>= 4.12.0.0,
                        bytestring,
                        optparse-applicative,
+                       process,
                        yaml,
                        unordered-containers,
                        text
@@ -37,6 +38,7 @@ executable adhoc-ci
   build-depends:       base ^>= 4.12.0.0,
                        adhoc-ci,
                        bytestring,
+                       process,
                        optparse-applicative,
                        unordered-containers,
                        yaml,
@@ -65,6 +67,7 @@ test-suite spec
   build-depends:       base ^>= 4.12.0.0,
                        adhoc-ci,
                        directory,
+                       filepath,
                        hspec,
                        hspec-discover,
                        yaml
