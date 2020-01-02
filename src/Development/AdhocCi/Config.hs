@@ -11,7 +11,7 @@ import Data.ByteString (ByteString)
 import Data.Yaml (FromJSON (..), ToJSON, (.:), (.=))
 import qualified Data.Yaml as Y
 
-data Config
+newtype Config
   = Config {
     stages :: [Stage]
   } deriving (Eq, Show)
