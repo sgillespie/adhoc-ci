@@ -8,8 +8,10 @@ According to these principals, I believe a well-crafted CI tool should
  2. Be Easy to Setup
  3. Work on Bare Metal or Cloud
  4. Have Decentralized Build Configuration in Source Code
+ 
+This is currently implemented as a command-line application that runs a pipeline.
 
-## Concepts
+## Terminology
 We can think of the entire continuous integration (CI) process as a deployment
 pipeline. Each pipe in a pipeline represents an individual step in the build in the build,
 test and deployment lifecycle. In Adhoc CI, we refer to pipes as stages.
