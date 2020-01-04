@@ -1,0 +1,6 @@
+pipeline:
+  - name: build
+    commands:
+      - cabal configure
+      - cabal build
+      - cabal test
