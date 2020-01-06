@@ -1,0 +1,42 @@
+image: haskell:8.8
+
+cache:
+    paths:
+      - .cabal-store
+
+stages:
+  - bootstrap:dependencies
+  - bootstrap
+  - build
+
+bootstrap:dependencies:
+  stage: bootstrap:dependencies
+  before_script:
+    - cabal v2-update
+    - cabal --store-dir=$(pwd)/.cabal-store v2-install hspec-discover hlint-test
+  script:
+    - cabal --store-dir=$(pwd)/.cabal-store v2-configure --enable-tests
+    - cabal v2-install --dependencies-only
+
+bootstrap:
+  stage: bootstrap
+  before_script:
+    - cabal v2-update
+    - cabal --store-dir=$(pwd)/.cabal-store v2-install hspec-discover hlint-test
+    - mkdir -p .cabal/bin
+  after_script:
+    - for link in $(find .cabal/bin -type l); do mv $(readlink "$link") "$link"; done
+  script:
+    - cabal v2-test --test-show-details=direct
+    - cabal v2-install --installdir .cabal/bin
+  artifacts:
+    paths:
+      - .cabal/bin
+
+
+build:
+  stage: build
+  before_script:
+    - export PATH=$PATH:.cabal/bin
+  script:
+    - adhoc-ci build

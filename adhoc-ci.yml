@@ -1,6 +1,7 @@
 pipeline:
   - name: build
     commands:
-      - cabal configure
-      - cabal build
-      - cabal test
+      - cabal v2-update
+      - cabal v2-install hspec-discover hlint-test
+      - cabal v2-configure --enable-tests
+      - cabal v2-test
