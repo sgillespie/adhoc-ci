@@ -18,19 +18,24 @@ spec = describe "parseConfig" $ do
 
   it "parses a simple config" $ do
     let yaml = [yamlQQ|
-                  pipeline:
-                    - name: stage1
-                      commands:
-                        - cabal configure
-                        - cabal test
-                    - name: stage2
-                      commands:
-                        - ./deploy-app.sh
+                  stages:
+                    - stage1
+                    - stage2
+                  job1:
+                    stage: stage1
+                    commands:
+                      - build job1
+                      - build2 job1
+                  job2:
+                    stage: stage2
+                    commands:
+                      - deploy job2
                |]
-    parseConfig' yaml `shouldBe` Config
-      [ Stage "stage1" ["cabal configure", "cabal test"],
-        Stage "stage2" ["./deploy-app.sh"]
-      ]
+        config = parseConfig' yaml
+    stages config `shouldBe` ["stage1", "stage2"]
+    jobs config `shouldSatisfy` \jobs' ->
+      Job "job1" "stage1" ["build job1", "build2 job1"] `elem` jobs' &&
+      Job "job2" "stage2" ["deploy job2"] `elem` jobs'
 
   it "rejects non-objects" $ do
       let yaml =
@@ -41,12 +46,20 @@ spec = describe "parseConfig" $ do
       mapM_ (\y -> evaluate (parseConfig' y) `shouldThrow` anyException) yaml
 
   it "encodes to yaml" $ do
-      let config = Config [Stage "stage" ["command1"]]
-          yaml   = [yamlQQ|
-                          pipeline:
-                            - name: stage
-                              commands:
-                                - command1
-                   |]
+      let config = Config
+            { stages = ["Stage1", "Stage2"],
+              jobs   = [Job "Job1" "Stage1" ["command1", "command2"],
+                        Job "Job2" "Stage2" ["command"]
+                       ]
+            }
+          yaml = [yamlQQ|
+                    stages: [Stage1, Stage2]
+                    Job1:
+                      stage: Stage1
+                      commands: [command1, command2]
+                    Job2:
+                      stage: Stage2
+                      commands: [command]
+                  |]
       output <- decodeThrow $ showConfig config
       output `shouldBe` yaml

@@ -1,3 +1,4 @@
+{-# LANGUAGE DuplicateRecordFields #-}
 module Development.AdhocCi
   ( PipelineOpts (..),
     mkPipelineOpts,
@@ -7,8 +8,7 @@ module Development.AdhocCi
   ) where
 
 import Control.Monad (forM_)
-import qualified Data.ByteString as B
-import Data.Yaml (encode, prettyPrintParseException)
+import Data.Yaml (prettyPrintParseException)
 import System.Exit (ExitCode (..), exitWith)
 import System.FilePath
 
@@ -34,13 +34,20 @@ runStages PipelineOpts{configFile=conf, rootPath=root, stage=stages'} = do
 
   config  <- parseConfigFile configPath
   config' <- case config of
-    Left err      -> do
+    Left err  -> do
       putStr (prettyPrintParseException err)
       exitWith (ExitFailure 1)
-    Right result -> return result
+    Right res -> return res
 
-  let cStages = filter (\s -> name s `elem` stages') (stages config')
+  let cStages = filter (`elem` stages') (stages config')
 
-  forM_ cStages $ \ Stage{commands=cs, name=n} -> do
-    putStrLn $ "Running stage " ++ n
-    mapM_ (runCommand root) cs
+  forM_ cStages $ \stage' -> do
+    putStrLn $ "Running stage " ++ stage'
+    runStage root stage' (jobs config')
+
+runStage :: FilePath -> String -> [Job] -> IO ()
+runStage dir stage' js
+  = forM_ jobs' $ \ Job{commands=c} ->
+      forM_ c $ \command ->
+        runCommand dir command
+  where jobs' = filter (\ Job{stage=s} -> s == stage') js

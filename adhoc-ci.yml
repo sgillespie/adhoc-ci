@@ -1,7 +1,10 @@
-pipeline:
-  - name: build
-    commands:
-      - cabal v2-update
-      - cabal v2-install hspec-discover hlint-test
-      - cabal v2-configure --enable-tests
-      - cabal v2-test
+stages:
+  - build
+
+build:
+  stage: build
+  commands:
+    - cabal v2-update
+    - cabal v2-install hlint-2.2.9 hspec-discover hlint-test
+    - cabal v2-configure --enable-tests
+    - cabal v2-test

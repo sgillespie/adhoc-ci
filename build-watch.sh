@@ -24,6 +24,8 @@ case $1 in
         ;;
 esac
 
+cabal --test-show-details=direct test $@
+
 watchman-make \
     --make "cabal --test-show-details=direct" \
     --pattern "*.cabal" "**/*.hs" --target "test $@" \
