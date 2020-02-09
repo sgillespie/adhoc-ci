@@ -4,7 +4,8 @@ module Development.AdhocCi.Config (
   parseConfigFile,
   showConfig,
   Config(..),
-  Job(..)
+  Job(..),
+  Hooks(..)
   ) where
 
 import Control.Arrow ((>>>))
@@ -12,13 +13,14 @@ import Control.Monad (sequence)
 import Data.ByteString (ByteString)
 import Data.HashMap.Strict (filterWithKey, insert, mapWithKey, toList)
 import Data.Text (Text, pack)
-import Data.Yaml (FromJSON (..), ToJSON, Value (..), object, (.:), (.=))
+import Data.Yaml (FromJSON (..), ToJSON, Value (..), object, (.:), (.:?), (.=))
 import qualified Data.Yaml as Y
 
 data Config
   = Config {
     stages :: [String],
-    jobs   :: [Job]
+    jobs   :: [Job],
+    hooks  :: Hooks
   } deriving (Eq, Show)
 
 data Job
@@ -27,6 +29,15 @@ data Job
     stage    :: String,
     commands :: [String]
   } deriving (Eq, Show)
+
+data Hooks
+  = Hooks {
+    beforeAll  :: Maybe [String],
+    beforeEach :: Maybe [String],
+    afterAll   :: Maybe [String],
+    afterEach  :: Maybe [String]
+  } deriving (Eq, Show)
+
 
 parseConfigFile :: FilePath -> IO (Either Y.ParseException Config)
 parseConfigFile = Y.decodeFileEither
@@ -38,13 +49,20 @@ showConfig :: Config -> ByteString
 showConfig = Y.encode
 
 reservedNames :: [Text]
-reservedNames = ["stages"]
+reservedNames
+  = ["after_all",
+     "after_each",
+     "before_all",
+     "before_each",
+     "stages"
+    ]
 
 instance FromJSON Config where
   parseJSON (Y.Object v)
     = Config
       <$> v .: "stages"
       <*> parseJobs v
+      <*> parseHooks v
   parseJSON _            = fail "Expected an object"
 
 parseJobs :: Y.Object -> Y.Parser [Job]
@@ -55,6 +73,14 @@ parseJobs = filterWithKey (const . (`notElem` reservedNames))
             >>> sequence
   where addName k (Y.Object v) = Object $ insert "name" (String k) v
         addName _ v            = v
+
+parseHooks :: Y.Object -> Y.Parser Hooks
+parseHooks obj
+  = Hooks
+    <$> obj .:? "before_all"
+    <*> obj .:? "before_each"
+    <*> obj .:? "after_all"
+    <*> obj .:? "after_each"
 
 instance FromJSON Job where
   parseJSON (Y.Object v)

@@ -1,13 +1,11 @@
-{-# LANGUAGE QuasiQuotes #-}
+{-# LANGUAGE DuplicateRecordFields #-}
+{-# LANGUAGE QuasiQuotes           #-}
 module Development.AdhocCi.ConfigSpec (spec) where
 
 import Control.Exception (evaluate, throw)
-import Data.Either (fromLeft, isRight)
 import Data.Yaml
 import Data.Yaml.TH (yamlQQ)
 import Development.AdhocCi.Config
-import System.Directory
-import System.IO
 import Test.Hspec
 
 spec :: Spec
@@ -21,6 +19,14 @@ spec = describe "parseConfig" $ do
                   stages:
                     - stage1
                     - stage2
+                  before_all:
+                    - before command
+                  before_each:
+                    - before command 1
+                  after_all:
+                    - after command
+                  after_each:
+                    - after command 1
                   job1:
                     stage: stage1
                     commands:
@@ -36,6 +42,24 @@ spec = describe "parseConfig" $ do
     jobs config `shouldSatisfy` \jobs' ->
       Job "job1" "stage1" ["build job1", "build2 job1"] `elem` jobs' &&
       Job "job2" "stage2" ["deploy job2"] `elem` jobs'
+    hooks config `shouldBe`
+      Hooks { beforeAll  = Just ["before command"],
+              afterAll   = Just ["after command"],
+              beforeEach = Just ["before command 1"],
+              afterEach  = Just ["after command 1"]
+            }
+
+  it "defaults optional fields" $ do
+    let yaml = [yamlQQ|
+                 stages: []
+               |]
+        config = parseConfig' yaml
+    hooks config `shouldBe`
+      Hooks { beforeAll  = Nothing,
+              afterAll   = Nothing,
+              beforeEach = Nothing,
+              afterEach  = Nothing
+            }
 
   it "rejects non-objects" $ do
       let yaml =
@@ -50,8 +74,15 @@ spec = describe "parseConfig" $ do
             { stages = ["Stage1", "Stage2"],
               jobs   = [Job "Job1" "Stage1" ["command1", "command2"],
                         Job "Job2" "Stage2" ["command"]
-                       ]
+                       ],
+              hooks  = Hooks
+                { beforeAll  = Nothing,
+                  beforeEach = Nothing,
+                  afterAll   = Nothing,
+                  afterEach  = Nothing
+                }
             }
+
           yaml = [yamlQQ|
                     stages: [Stage1, Stage2]
                     Job1:
@@ -63,3 +94,4 @@ spec = describe "parseConfig" $ do
                   |]
       output <- decodeThrow $ showConfig config
       output `shouldBe` yaml
+
