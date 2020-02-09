@@ -39,11 +39,39 @@ runStages PipelineOpts{configFile=conf, rootPath=root, stage=stages'} = do
       exitWith (ExitFailure 1)
     Right res -> return res
 
-  let cStages = filter (`elem` stages') (stages config')
+  let Hooks
+        { beforeAll=beforeAll',
+          beforeEach=beforeEach',
+          afterAll=afterAll',
+          afterEach=afterEach'
+        } = hooks config'
 
+  -- Run before_all hook
+  runHook root beforeAll' $
+    putStrLn "Running before_all hook"
+
+  -- Run the stages' jobs
+  let cStages = filter (`elem` stages') (stages config')
   forM_ cStages $ \stage' -> do
+    -- Run before_each hook
+    runHook root beforeEach' $
+      putStrLn "Running before_each hook"
+
+    -- Run the jobs
     putStrLn $ "Running stage " ++ stage'
     runStage root stage' (jobs config')
+
+    -- Run after_each hook
+    runHook root afterEach' $
+      putStrLn "Running after_each hook"
+
+  -- Run after_all hook
+  runHook root afterAll' $
+    putStrLn "Running after_all hook"
+
+runHook :: FilePath -> Maybe [String] -> IO a -> IO ()
+runHook dir (Just cmds) action = action >> mapM_ (runCommand dir) cmds
+runHook _ _ _                  = return ()
 
 runStage :: FilePath -> String -> [Job] -> IO ()
 runStage dir stage' js

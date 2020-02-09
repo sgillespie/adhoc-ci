@@ -1,10 +1,12 @@
 stages:
   - build
 
+before_all:
+  - cabal v2-update
+  - cabal v2-install hlint-2.2.9 hspec-discover hlint-test
+
 build:
   stage: build
   commands:
-    - cabal v2-update
-    - cabal v2-install hlint-2.2.9 hspec-discover hlint-test
     - cabal v2-configure --enable-tests
     - cabal v2-test
