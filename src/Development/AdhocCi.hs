@@ -1,16 +1,21 @@
 {-# LANGUAGE DuplicateRecordFields #-}
 module Development.AdhocCi
-  ( PipelineOpts (..),
+  ( MonadPrint(..),
+    PipelineOpts (..),
     mkPipelineOpts,
     runStages,
     module Development.AdhocCi.Commands,
     module Development.AdhocCi.Config
   ) where
 
+import Control.Exception (throw)
 import Control.Monad (forM_)
+import Prelude hiding (putStr, putStrLn)
 import Data.Yaml (prettyPrintParseException)
-import System.Exit (ExitCode (..), exitWith)
+import System.Exit (ExitCode (..))
 import System.FilePath
+import qualified Prelude as P
+import qualified System.Exit as E
 
 import Development.AdhocCi.Commands
 import Development.AdhocCi.Config
@@ -28,7 +33,20 @@ mkPipelineOpts = PipelineOpts
     stage      = []
   }
 
-runStages :: PipelineOpts -> IO ()
+class Monad m => MonadPrint m where
+  putStr :: String -> m ()
+  putStrLn :: String -> m ()
+  exitWith :: ExitCode -> m a
+
+instance MonadPrint IO where
+  putStr = P.putStr
+  putStrLn = P.putStrLn
+  exitWith = E.exitWith
+
+runStages
+  :: (MonadProcess m, MonadConfigFile m, MonadPrint m)
+  => PipelineOpts
+  -> m ()
 runStages PipelineOpts{configFile=conf, rootPath=root, stage=stages'} = do
   let configPath = root </> conf
 
@@ -49,7 +67,7 @@ runStages PipelineOpts{configFile=conf, rootPath=root, stage=stages'} = do
   -- Run before_all hook
   runHook root beforeAll' $
     putStrLn "Running before_all hook"
-
+  
   -- Run the stages' jobs
   let cStages = filter (`elem` stages') (stages config')
   forM_ cStages $ \stage' -> do
@@ -69,13 +87,21 @@ runStages PipelineOpts{configFile=conf, rootPath=root, stage=stages'} = do
   runHook root afterAll' $
     putStrLn "Running after_all hook"
 
-runHook :: FilePath -> Maybe [String] -> IO a -> IO ()
-runHook dir (Just cmds) action = action >> mapM_ (runCommand dir) cmds
+runHook :: (MonadProcess m) => FilePath -> Maybe [String] -> m () -> m ()
+runHook dir (Just cmds) action = action >> mapM_ (runCommand' dir) cmds
 runHook _ _ _                  = return ()
 
-runStage :: FilePath -> String -> [Job] -> IO ()
+runStage :: MonadProcess m => FilePath -> String -> [Job] -> m ()
 runStage dir stage' js
-  = forM_ jobs' $ \ Job{commands=c} ->
-      forM_ c $ \command ->
-        runCommand dir command
+  = forM_ jobs' $ \ Job{commands=cs} ->
+      forM_ cs (runCommand' dir)
   where jobs' = filter (\ Job{stage=s} -> s == stage') js
+
+runCommand' :: MonadProcess m => FilePath -> String -> m ()
+runCommand' dir cmd = do
+  let cmd' = (mkCommand cmd) { workDir = dir }
+  
+  res <- runCommand cmd'
+  case res of
+    err@(ExitFailure _) -> throw err
+    _                   -> return ()

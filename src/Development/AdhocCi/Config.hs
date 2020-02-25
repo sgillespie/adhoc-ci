@@ -1,11 +1,11 @@
 {-# LANGUAGE OverloadedStrings #-}
 module Development.AdhocCi.Config (
   parseConfig,
-  parseConfigFile,
   showConfig,
   Config(..),
   Job(..),
-  Hooks(..)
+  Hooks(..),
+  MonadConfigFile(..)
   ) where
 
 import Control.Arrow ((>>>))
@@ -38,10 +38,12 @@ data Hooks
     afterEach  :: Maybe [String]
   } deriving (Eq, Show)
 
+class Monad m => MonadConfigFile m where
+  parseConfigFile :: FilePath -> m (Either Y.ParseException Config)
 
-parseConfigFile :: FilePath -> IO (Either Y.ParseException Config)
-parseConfigFile = Y.decodeFileEither
-
+instance MonadConfigFile IO where
+  parseConfigFile = Y.decodeFileEither
+  
 parseConfig :: ByteString -> Either Y.ParseException Config
 parseConfig = Y.decodeEither'
 
