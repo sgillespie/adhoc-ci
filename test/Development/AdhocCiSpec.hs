@@ -5,16 +5,13 @@
 module Development.AdhocCiSpec (spec) where
 
 import Control.Exception (throw)
-import Control.Monad.Except (MonadError(..), throwError)
 import Control.Monad.Reader
 import Control.Monad.Writer
 import Data.Yaml (ParseException(..))
-import System.Exit (ExitCode(..), exitWith)
+import System.Exit (ExitCode(..))
 import Test.Hspec hiding (beforeAll, afterAll)
 
 import Development.AdhocCi
-import Development.AdhocCi.Commands
-import Development.AdhocCi.Config
 
 data FixtureInst m = FixtureInst
   { _runCommand :: Command -> m ExitCode,

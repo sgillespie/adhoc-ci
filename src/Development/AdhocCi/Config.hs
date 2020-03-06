@@ -9,7 +9,6 @@ module Development.AdhocCi.Config (
   ) where
 
 import Control.Arrow ((>>>))
-import Control.Monad (sequence)
 import Data.ByteString (ByteString)
 import Data.HashMap.Strict (filterWithKey, insert, mapWithKey, toList)
 import Data.Text (Text, pack)
