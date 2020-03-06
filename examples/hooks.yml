@@ -1,0 +1,31 @@
+stages:
+  - bootstrap
+  - build
+  - release
+
+before_all:
+  - echo before_all
+
+after_all:
+  - echo after_all
+
+before_each:
+  - echo before_each
+
+after_each:
+  - echo after_all
+
+bootstrap:
+  stage: bootstrap
+  commands:
+    - echo bootstrap
+
+build:
+  stage: build
+  commands:
+    - echo build
+
+release:
+  stage: release
+  commands:
+    - echo release

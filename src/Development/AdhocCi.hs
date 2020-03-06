@@ -107,12 +107,6 @@ runStage dir stage' js
       forM_ cs (runCommand' dir)
   where jobs' = filter (\ Job{stage=s} -> s == stage') js
 
-boldYellow :: Doc -> Doc
-boldYellow = bold . yellow
-
-putDocLn :: MonadPrint m => Doc -> m ()
-putDocLn d = putDoc $ d <$> empty
-
 runCommand' :: (MonadProcess m, MonadPrint m) => FilePath -> String -> m ()
 runCommand' dir cmd = do
   let cmd' = (mkCommand cmd) { workDir = dir }
@@ -121,5 +115,17 @@ runCommand' dir cmd = do
   
   res <- runCommand cmd'
   case res of
-    err@(ExitFailure _) -> throw err
+    err@(ExitFailure exit) -> do
+      putDocLn $ boldRed (text "Error: Job failed with exit code" <+> int exit)
+      throw err
     _                   -> return ()
+
+boldYellow :: Doc -> Doc
+boldYellow = bold . yellow
+
+boldRed :: Doc -> Doc
+boldRed = bold . red
+
+putDocLn :: MonadPrint m => Doc -> m ()
+putDocLn d = putDoc $ d <$> empty
+
