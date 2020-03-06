@@ -20,6 +20,7 @@ library
   -- other-modules:
   -- other-extensions:
   build-depends:       base <= 4.13.0.0,
+                       ansi-wl-pprint,
                        bytestring,
                        filepath,
                        optparse-applicative,
@@ -38,6 +39,7 @@ executable adhoc-ci
   -- other-extensions:
   build-depends:       base <= 4.13.0.0,
                        adhoc-ci,
+                       ansi-wl-pprint,
                        bytestring,
                        filepath,
                        mtl,
@@ -69,6 +71,7 @@ test-suite spec
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base <= 4.13.0.0,
                        adhoc-ci,
+                       ansi-wl-pprint,
                        directory,
                        filepath,
                        hspec,
