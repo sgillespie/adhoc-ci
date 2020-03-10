@@ -16,7 +16,7 @@ bootstrap:dependencies:
     - cabal --store-dir=$(pwd)/.cabal-store v2-install hspec-discover hlint-test
   script:
     - cabal --store-dir=$(pwd)/.cabal-store v2-configure --enable-tests
-    - cabal v2-install --dependencies-only
+    - cabal v2-install --dependencies-only all
 
 bootstrap:
   stage: bootstrap
@@ -27,8 +27,8 @@ bootstrap:
   after_script:
     - for link in $(find .cabal/bin -type l); do mv $(readlink "$link") "$link"; done
   script:
-    - cabal v2-test --test-show-details=direct
-    - cabal v2-install --installdir .cabal/bin
+    - cabal v2-test --test-show-details=direct all
+    - cabal v2-install --installdir .cabal/bin all
   artifacts:
     paths:
       - .cabal/bin
@@ -39,4 +39,4 @@ build:
   before_script:
     - export PATH=$PATH:.cabal/bin
   script:
-    - adhoc-ci build
+    - adhoc-build build

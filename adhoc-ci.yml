@@ -9,4 +9,4 @@ build:
   stage: build
   commands:
     - cabal v2-configure --enable-tests
-    - cabal v2-test
+    - cabal v2-test --test-show-details=direct all

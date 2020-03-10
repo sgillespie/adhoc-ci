@@ -24,10 +24,10 @@ case $1 in
         ;;
 esac
 
-cabal --test-show-details=direct test $@
+cabal --test-show-details=direct test all $@
 
 watchman-make \
     --make "cabal --test-show-details=direct" \
-    --pattern "*.cabal" "**/*.hs" --target "test $@" \
+    --pattern "*.cabal" "**/*.hs" --target "test all $@" \
     --settle 2
 exit $?

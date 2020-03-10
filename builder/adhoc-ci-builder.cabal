@@ -1,6 +1,6 @@
 cabal-version:       2.4
 
-name:                adhoc-ci
+name:                adhoc-ci-builder
 version:             0.1.0
 synopsis:            Modern continuous integration
 homepage:            https://github.com/sgillespie/adhoc-ci
@@ -17,28 +17,25 @@ library
   exposed-modules:     Development.AdhocCi,
                        Development.AdhocCi.Commands,
                        Development.AdhocCi.Config
-  -- other-modules:
-  -- other-extensions:
+  default-extensions:  DuplicateRecordFields,
+                       OverloadedStrings
   build-depends:       base <= 4.13.0.0,
                        ansi-wl-pprint,
                        bytestring,
                        filepath,
                        optparse-applicative,
                        process,
-                       yaml,
+                       text,
                        unordered-containers,
-                       text
+                       yaml
+                       
   hs-source-dirs:      src
   default-language:    Haskell2010
 
-executable adhoc-ci
+executable adhoc-build
   main-is:             Main.hs
-  other-modules:       Development.AdhocCi,
-                       Development.AdhocCi.Commands,
-                       Development.AdhocCi.Config
-  -- other-extensions:
   build-depends:       base <= 4.13.0.0,
-                       adhoc-ci,
+                       adhoc-ci-builder,
                        ansi-wl-pprint,
                        bytestring,
                        filepath,
@@ -48,13 +45,13 @@ executable adhoc-ci
                        unordered-containers,
                        yaml,
                        text
-  hs-source-dirs:      src
+  hs-source-dirs:      app
   default-language:    Haskell2010
 
 test-suite hlint
   type:                exitcode-stdio-1.0
   main-is:             HLint.hs
-  other-modules:       Paths_adhoc_ci
+  other-modules:       Paths_adhoc_ci_builder
   hs-source-dirs:      test
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base <= 4.13.0.0,
@@ -70,7 +67,7 @@ test-suite spec
   hs-source-dirs:      test
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base <= 4.13.0.0,
-                       adhoc-ci,
+                       adhoc-ci-builder,
                        ansi-wl-pprint,
                        directory,
                        filepath,
