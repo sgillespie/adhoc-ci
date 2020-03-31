@@ -11,7 +11,7 @@ author:              Sean D Gillespie
 maintainer:          sean@mistersg.net
 copyright:           (c) 2019 Sean Gillespie
 category:            Development
-extra-source-files:  CHANGELOG.md, README.md
+extra-source-files:  CHANGELOG.md
 
 library
   exposed-modules:     Development.AdhocCi,
