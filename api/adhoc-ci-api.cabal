@@ -1,0 +1,72 @@
+cabal-version:       2.4
+
+name:                adhoc-ci-api
+version:             0.1.0
+synopsis:            Modern continuous integration
+homepage:            https://github.com/sgillespie/adhoc-ci
+bug-reports:         https://github.com/sgillespie/adhoc-ci
+license:             MIT
+license-file:        LICENSE
+author:              Sean D Gillespie
+maintainer:          sean@mistersg.net
+copyright:           (c) 2020 Sean Gillespie
+category:            Development
+extra-source-files:  CHANGELOG.md
+
+library
+  exposed-modules:     Development.AdhocCi.Api
+  default-extensions:  DataKinds,
+                       DeriveGeneric,
+                       FlexibleInstances,
+                       GeneralizedNewtypeDeriving,
+                       MultiParamTypeClasses,
+                       OverloadedStrings,
+                       RankNTypes,
+                       ScopedTypeVariables,
+                       TypeOperators
+  build-depends:       base ^>=4.13.0.0,
+                       servant-server
+  hs-source-dirs:      src
+  default-language:    Haskell2010
+
+executable adhoc-ci-api
+  main-is:             Main.hs
+  default-extensions:  DataKinds,
+                       DeriveGeneric,
+                       FlexibleInstances,
+                       GeneralizedNewtypeDeriving,
+                       MultiParamTypeClasses,
+                       OverloadedStrings,
+                       RankNTypes,
+                       ScopedTypeVariables,
+                       TypeOperators
+  build-depends:       base ^>=4.13.0.0,
+                       adhoc-ci-api,
+                       servant-server,
+                       wai,
+                       wai-logger,
+                       warp
+  hs-source-dirs:      app
+  default-language:    Haskell2010
+
+test-suite hlint
+  type:                exitcode-stdio-1.0
+  main-is:             HLint.hs
+  other-modules:       Paths_adhoc_ci_api
+  hs-source-dirs:      test
+  ghc-options:         -threaded -with-rtsopts=-N
+  build-depends:       base <= 4.13.0.0,
+                       hlint,
+                       hlint-test
+  default-language:    Haskell2010
+
+test-suite spec
+  type:                exitcode-stdio-1.0
+  main-is:             HSpec.hs
+  hs-source-dirs:      test
+  ghc-options:         -threaded -with-rtsopts=-N
+  build-depends:       base <= 4.13.0.0,
+                       adhoc-ci-api,
+                       hspec,
+                       hspec-discover
+  default-language:    Haskell2010
