@@ -8,3 +8,9 @@ type Api' = "ping" :> Get '[PlainText] String
 
 server :: Server Api
 server = return "pong"
+
+api :: Proxy Api
+api = Proxy
+
+app :: Application
+app = serve api server

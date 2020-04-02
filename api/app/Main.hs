@@ -4,13 +4,7 @@ import Network.Wai.Logger
 import Network.Wai.Handler.Warp
 import Servant
 
-import Development.AdhocCi.Api (Api, server)
-
-api :: Proxy Api
-api = Proxy
-
-app :: Application
-app = serve api server
+import Development.AdhocCi.Api (Api, app, server)
 
 main :: IO ()
 main = withStdoutLogger $ \logger -> do

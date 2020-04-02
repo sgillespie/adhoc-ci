@@ -64,9 +64,29 @@ test-suite spec
   type:                exitcode-stdio-1.0
   main-is:             HSpec.hs
   hs-source-dirs:      test
+  other-modules:       Development.AdhocCi.ServantClientSpec,
+                       Development.AdhocCi.ServantQuickCheckSpec
+  default-extensions:  DataKinds,
+                       DeriveGeneric,
+                       FlexibleInstances,
+                       GeneralizedNewtypeDeriving,
+                       MultiParamTypeClasses,
+                       OverloadedStrings,
+                       RankNTypes,
+                       ScopedTypeVariables,
+                       TypeOperators
   ghc-options:         -threaded -with-rtsopts=-N
   build-depends:       base <= 4.13.0.0,
                        adhoc-ci-api,
+                       QuickCheck,
                        hspec,
-                       hspec-discover
+                       hspec-discover,
+                       hspec-wai,
+                       http-client,
+                       http-types,
+                       servant-client,
+                       servant-quickcheck,
+                       servant-server,
+                       wai,
+                       warp
   default-language:    Haskell2010
